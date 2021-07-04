@@ -6,6 +6,8 @@
 	<h1 align="center" class="mt-2"> Registration Form</h1>
 	<div class="col-md-4" style="margin: 0 auto;">
 		<form method="POST" class="form-register" style="color: white;">
+			{{ form.hidden_tag() }}
+
 			{{ form.username.label(class='mt-3') }}
 			{{ form.username(class="form-control", placeholder="Enter a Username") }}
 
