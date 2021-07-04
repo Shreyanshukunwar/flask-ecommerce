@@ -1,9 +1,9 @@
 from market import app
-from flask import render_template, redirect, url_for, flash
-from flask_login import login_user, logout_user, login_required
+from flask import render_template, redirect, url_for, flash, request
+from flask_login import login_user, logout_user, login_required, current_user
 
 from .models import Item, User
-from .forms import RegisterForm, LoginForm
+from .forms import RegisterForm, LoginForm, PurchaseItemForm, SellItemForm
 
 from market import db
 
@@ -12,11 +12,39 @@ from market import db
 def home_page():
 	return render_template('home.html')
 
-@app.route('/market')
+@app.route('/market', methods=['GET', 'POST'])
 @login_required
 def market_page():
-	items = Item.query.all()
-	return render_template('market.html', items=items)
+	purchase_form = PurchaseItemForm()
+	selling_form = SellItemForm()
+
+	if request.method == 'GET':
+		items = Item.query.filter_by(owner=None)
+		owned_items = Item.query.filter_by(owner=current_user.id)
+
+	if request.method == 'POST':
+		# purchase item logic
+		purchased_item = request.form.get('purchased_item')
+		p_item_object = Item.query.filter_by(name=purchased_item).first()
+
+		if p_item_object:
+			if current_user.can_purchase(p_item_object):
+				p._item_object.buy(current_user)
+				flash(f'Item puchased successfully: {p_item_object.name}', category='success')
+			else:
+				flash(f'Insufficient budget to purchase {p_item_object.name}', category='danger')
+
+		#sell item logic
+		sold_item = request.form.get('sold_item')
+		print("Sold item is :" , sold_item)
+		s_item_object = Item.query.filter_by(name=sold_item).first()
+		print(s_item_object)
+		if s_item_object:
+			if current_user.can_sell(s_item_object):
+				s_item_object.sell(current_user)
+				flash(f'Item sold successfully: {s_item_object.name}', category='success')
+
+	return render_template('market.html', items=items, purchase_form=purchase_form, owned_items=owned_items, selling_form=selling_form)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register_page():

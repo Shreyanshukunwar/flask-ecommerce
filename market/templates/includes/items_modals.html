@@ -12,7 +12,6 @@
     <div class="modal-content">
       <div class="modal-header">
         <h5 class="modal-title" id="ModalLabel">
-          <!-- -->
           {{ item.name }}
         </h5>
         <button type="button" class="close"
@@ -24,7 +23,7 @@
         {{ item.description }}
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
+        <button type="button" class="btn btn-danger"
                 data-dismiss="modal">Close
         </button>
       </div>
@@ -49,10 +48,16 @@
         </button>
       </div>
       <div class="modal-body">
-        Are you sure you want to buy {{ item.name }} for ${{ item.price }} ?
+        <h4 align="center">Are you sure you want to buy {{ item.name }} for ${{ item.price }} ?</h4>
+        <form method="POST">
+          {{ purchase_form.hidden_tag() }}
+
+          <input id="purchased_item" name="purchased_item" type="hidden" value="{{ item.name }}">
+          {{ purchase_form.submit(class='mt-3 btn btn-success btn-block') }}
+        </form>
       </div>
       <div class="modal-footer">
-        <button type="button" class="btn btn-secondary"
+        <button type="button" class="btn btn-danger"
                 data-dismiss="modal">Close
         </button>
       </div>

@@ -31,7 +31,14 @@ class User(db.Model, UserMixin):
             return f"$ {str(self.budget)[:-3]},{str(self.budget)[-3:]}"
         else:
             return f"$ {self.budget}"
-    
+
+    @property
+    def can_purchase(self, item_obj):
+        return self.budget >= item_obj.price
+
+    @property
+    def can_sell(self, item_obj):
+        return item_obj in self.items
 
     def __repr__(self):
         return self.username
@@ -44,6 +51,18 @@ class Item(db.Model):
     barcode = db.Column(db.String(length=12), nullable=False, unique=True)
     description = db.Column(db.String(length=1024), nullable=False, unique=True)
     owner = db.Column(db.Integer(), db.ForeignKey('user.id'))
+
+    @property
+    def buy(self, user):
+        self.owner = user.id           
+        user.budget -= self.price
+        db.session.commit()
+
+    @property
+    def sell(self, user):
+        self.owner = None           
+        user.budget += self.price
+        db.session.commit()
 
     def __repr__(self):
         return self.name
